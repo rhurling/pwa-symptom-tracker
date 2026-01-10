@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { sessions, entries, settings, metricsById } from '$stores';
-	import { Button, Card, Modal } from '$components/common';
+	import { Button, Card, Modal, EmptyState } from '$components/common';
 	import { formatDate, formatTime, formatDateFull, getDateRangeLabel } from '$utils/dates';
 	import { formatTemperature, getTemperatureStatus, getTemperatureStatusLabel } from '$utils/temperature';
 	import { db } from '$db';
@@ -267,9 +267,11 @@ Note: This analysis is for informational purposes only and should not replace pr
 	<h1 class="text-2xl font-bold text-neutral-800 dark:text-neutral-100">Export Data</h1>
 
 	{#if $sessions.length === 0}
-		<Card class="text-center">
-			<p class="text-neutral-500">No sessions to export yet.</p>
-		</Card>
+		<EmptyState
+			icon="📤"
+			title="Nothing to export"
+			description="Create a session and log some entries first, then come back to export your data"
+		/>
 	{:else}
 		<!-- Session selector -->
 		<div class="space-y-1">

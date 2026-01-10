@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { sessions } from '$stores';
 	import { SessionCard } from '$components/session';
-	import { Button } from '$components/common';
+	import { Button, EmptyState } from '$components/common';
 	import { db } from '$db';
 	import { onMount } from 'svelte';
 
@@ -51,18 +51,13 @@
 
 	{#if $sessions.length === 0}
 		<!-- Empty state -->
-		<div class="py-12 text-center">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
-				<span class="text-3xl">📋</span>
-			</div>
-			<h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">No sessions yet</h2>
-			<p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-				Create your first tracking session to get started
-			</p>
-			<Button class="mt-4" onclick={handleNewSession}>
-				+ New Session
-			</Button>
-		</div>
+		<EmptyState
+			icon="📋"
+			title="No sessions yet"
+			description="Create your first tracking session to start logging your symptoms"
+			actionLabel="+ New Session"
+			onAction={handleNewSession}
+		/>
 	{:else}
 		<!-- Sessions list -->
 		<div class="space-y-3">
