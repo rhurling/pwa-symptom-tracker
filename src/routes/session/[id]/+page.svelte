@@ -6,28 +6,21 @@
 	import { formatTimeAgo, formatDuration, getDaysBetween } from '$utils/dates';
 	import { formatTemperature, getTemperatureStatus, getTemperatureStatusLabel } from '$utils/temperature';
 	import { settings } from '$stores';
-	import { onMount } from 'svelte';
 	import type { TrackingSession, Entry } from '$types';
 
 	const sessionId = $derived($page.params.id!);
 	let session = $state<TrackingSession | null>(null);
 	let showStatusModal = $state(false);
 	let showDeleteModal = $state(false);
+	let loadedSessionId = $state<string | null>(null);
 
-	onMount(async () => {
-		if (!sessionId) return;
-		session = (await sessions.getById(sessionId)) ?? null;
-		if (session) {
-			await entries.loadForSession(sessionId);
-		}
-	});
-
-	// Reload session when navigating back
+	// Load session data when sessionId changes (handles initial load and navigation)
 	$effect(() => {
-		if (sessionId) {
+		if (sessionId && sessionId !== loadedSessionId) {
+			loadedSessionId = sessionId;
 			sessions.getById(sessionId).then((s) => {
 				session = s ?? null;
-				if (session) {
+				if (s) {
 					entries.loadForSession(sessionId);
 				}
 			});
@@ -61,6 +54,11 @@
 		await sessions.setStatus(sessionId, status);
 		session = (await sessions.getById(sessionId)) ?? null;
 		showStatusModal = false;
+	}
+
+	// Force reload session data when navigating back (e.g., from log page)
+	function reloadSession() {
+		loadedSessionId = null;
 	}
 
 	async function handleDelete() {

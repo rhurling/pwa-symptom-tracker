@@ -78,6 +78,9 @@ function createSessionsStore() {
 		const updates: Partial<TrackingSession> = { status, updatedAt: new Date() };
 		if (status === 'resolved') {
 			updates.resolvedAt = new Date();
+		} else {
+			// Clear resolvedAt when reactivating or pausing a session
+			updates.resolvedAt = undefined;
 		}
 		await updateSession(id, updates);
 	}
@@ -106,6 +109,10 @@ export const sessions = createSessionsStore();
 
 export const activeSessions = derived(sessions, ($sessions) =>
 	$sessions.filter((s) => s.status === 'active')
+);
+
+export const pausedSessions = derived(sessions, ($sessions) =>
+	$sessions.filter((s) => s.status === 'paused')
 );
 
 export const resolvedSessions = derived(sessions, ($sessions) =>

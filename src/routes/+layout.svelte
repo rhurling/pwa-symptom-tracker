@@ -1,17 +1,38 @@
 <script lang="ts">
 	import '../app.css';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
 	import { settings, sessions, metrics } from '$stores';
 	import { browser } from '$app/environment';
 
 	let { children } = $props();
+	let mediaQuery: MediaQueryList | null = null;
 
 	// Initialize stores and theme
 	onMount(async () => {
 		await Promise.all([settings.load(), sessions.load(), metrics.load()]);
 		applyTheme($settings.theme);
+
+		// Listen for system theme preference changes
+		if (browser) {
+			mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+			mediaQuery.addEventListener('change', handleSystemThemeChange);
+		}
 	});
+
+	onDestroy(() => {
+		// Clean up the media query listener
+		if (mediaQuery) {
+			mediaQuery.removeEventListener('change', handleSystemThemeChange);
+		}
+	});
+
+	function handleSystemThemeChange() {
+		// Only react if user has 'system' theme selected
+		if ($settings.theme === 'system') {
+			applyTheme('system');
+		}
+	}
 
 	function applyTheme(theme: 'light' | 'dark' | 'system') {
 		if (!browser) return;

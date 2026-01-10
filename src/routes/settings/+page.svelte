@@ -57,6 +57,89 @@
 		fileInput?.click();
 	}
 
+	function validateAndParseImportData(data: unknown): ExportData {
+		// Basic structure validation
+		if (!data || typeof data !== 'object') {
+			throw new Error('Invalid export file format');
+		}
+
+		const exportData = data as Record<string, unknown>;
+
+		if (!exportData.exportVersion || typeof exportData.exportVersion !== 'string') {
+			throw new Error('Missing or invalid export version');
+		}
+
+		if (!exportData.data || typeof exportData.data !== 'object') {
+			throw new Error('Missing data section in export file');
+		}
+
+		const innerData = exportData.data as Record<string, unknown>;
+
+		// Validate and parse sessions
+		if (innerData.sessions && Array.isArray(innerData.sessions)) {
+			for (const session of innerData.sessions) {
+				if (!session.id || typeof session.id !== 'string') {
+					throw new Error('Invalid session: missing id');
+				}
+				if (!session.name || typeof session.name !== 'string') {
+					throw new Error('Invalid session: missing name');
+				}
+				if (!['active', 'paused', 'resolved'].includes(session.status)) {
+					throw new Error(`Invalid session status: ${session.status}`);
+				}
+				// Convert date strings to Date objects
+				if (session.createdAt) session.createdAt = new Date(session.createdAt);
+				if (session.updatedAt) session.updatedAt = new Date(session.updatedAt);
+				if (session.resolvedAt) session.resolvedAt = new Date(session.resolvedAt);
+			}
+		}
+
+		// Validate and parse entries
+		if (innerData.entries && Array.isArray(innerData.entries)) {
+			for (const entry of innerData.entries) {
+				if (!entry.id || typeof entry.id !== 'string') {
+					throw new Error('Invalid entry: missing id');
+				}
+				if (!entry.sessionId || typeof entry.sessionId !== 'string') {
+					throw new Error('Invalid entry: missing sessionId');
+				}
+				if (!entry.metricId || typeof entry.metricId !== 'string') {
+					throw new Error('Invalid entry: missing metricId');
+				}
+				if (!entry.value || typeof entry.value !== 'object') {
+					throw new Error('Invalid entry: missing or invalid value');
+				}
+				// Convert date strings to Date objects
+				if (entry.timestamp) entry.timestamp = new Date(entry.timestamp);
+				if (entry.createdAt) entry.createdAt = new Date(entry.createdAt);
+				if (entry.updatedAt) entry.updatedAt = new Date(entry.updatedAt);
+			}
+		}
+
+		// Validate and parse custom metrics
+		if (innerData.customMetrics && Array.isArray(innerData.customMetrics)) {
+			for (const metric of innerData.customMetrics) {
+				if (!metric.id || typeof metric.id !== 'string') {
+					throw new Error('Invalid metric: missing id');
+				}
+				if (!metric.name || typeof metric.name !== 'string') {
+					throw new Error('Invalid metric: missing name');
+				}
+				// Convert date strings to Date objects
+				if (metric.createdAt) metric.createdAt = new Date(metric.createdAt);
+			}
+		}
+
+		// Validate and parse settings
+		if (innerData.settings && typeof innerData.settings === 'object') {
+			const s = innerData.settings as Record<string, unknown>;
+			if (s.createdAt) s.createdAt = new Date(s.createdAt as string);
+			if (s.updatedAt) s.updatedAt = new Date(s.updatedAt as string);
+		}
+
+		return exportData as unknown as ExportData;
+	}
+
 	async function handleFileSelect(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
@@ -67,12 +150,8 @@
 
 		try {
 			const text = await file.text();
-			const data = JSON.parse(text) as ExportData;
-
-			// Validate structure
-			if (!data.exportVersion || !data.data) {
-				throw new Error('Invalid export file format');
-			}
+			const rawData = JSON.parse(text);
+			const data = validateAndParseImportData(rawData);
 
 			// Import data
 			if (data.data.sessions?.length > 0) {

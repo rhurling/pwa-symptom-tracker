@@ -18,6 +18,7 @@
 	let markdownOutput = $state('');
 	let isGenerating = $state(false);
 	let copySuccess = $state(false);
+	let exportError = $state('');
 
 	const selectedSession = $derived($sessions.find((s) => s.id === selectedSessionId));
 
@@ -42,11 +43,12 @@
 		if (!selectedSession) return;
 
 		isGenerating = true;
+		exportError = '';
 
 		try {
 			// Load entries for this session
 			const sessionEntries = await db.getEntriesForSession(selectedSessionId, {
-				startDate: startDate ? new Date(startDate) : undefined,
+				startDate: startDate ? new Date(startDate + 'T00:00:00') : undefined,
 				endDate: endDate ? new Date(endDate + 'T23:59:59') : undefined
 			});
 
@@ -54,6 +56,7 @@
 			showPreviewModal = true;
 		} catch (error) {
 			console.error('Failed to generate export:', error);
+			exportError = 'Failed to generate export. Please try again.';
 		} finally {
 			isGenerating = false;
 		}
@@ -70,7 +73,7 @@
 
 		// Title and metadata
 		lines.push(`# Symptom Log: ${session.name}\n`);
-		lines.push(`**Period:** ${getDateRangeLabel(new Date(startDate), new Date(endDate))}`);
+		lines.push(`**Period:** ${getDateRangeLabel(new Date(startDate + 'T00:00:00'), new Date(endDate + 'T00:00:00'))}`);
 		lines.push(`**Status:** ${session.status.charAt(0).toUpperCase() + session.status.slice(1)}`);
 		lines.push(`**Total Entries:** ${sessionEntries.length}`);
 		lines.push('');
@@ -223,8 +226,10 @@ Note: This analysis is for informational purposes only and should not replace pr
 				return `${entry.value.emoji} ${['', 'Terrible', 'Poor', 'Okay', 'Good', 'Great'][entry.value.emojiValue]}`;
 			case 'event':
 				return entry.value.description;
-			default:
-				return '';
+			case 'numeric':
+				return `${entry.value.value}`;
+			case 'scale':
+				return `${entry.value.value}`;
 		}
 	}
 
@@ -361,6 +366,11 @@ Note: This analysis is for informational purposes only and should not replace pr
 					{/each}
 				</div>
 			</Card>
+
+			<!-- Error message -->
+			{#if exportError}
+				<p class="text-sm text-warning" role="alert">{exportError}</p>
+			{/if}
 
 			<!-- Generate button -->
 			<Button onclick={generateMarkdown} class="w-full" loading={isGenerating}>
