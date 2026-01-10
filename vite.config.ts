@@ -2,6 +2,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import { defineConfig } from 'vite';
 
+const basePath = process.env.BASE_PATH || '';
+
 export default defineConfig({
 	plugins: [
 		sveltekit(),
@@ -10,30 +12,33 @@ export default defineConfig({
 			mode: 'production',
 			strategies: 'generateSW',
 			registerType: 'autoUpdate',
+			scope: `${basePath}/`,
+			base: `${basePath}/`,
 			manifest: {
 				name: 'Symptom Tracker',
 				short_name: 'Symptoms',
 				description: 'Track health symptoms privately on your device',
-				start_url: '/',
+				start_url: `${basePath}/`,
+				scope: `${basePath}/`,
 				display: 'standalone',
 				background_color: '#f5f7f5',
 				theme_color: '#6b8f71',
 				orientation: 'portrait-primary',
 				icons: [
 					{
-						src: '/icons/icon.svg',
+						src: `${basePath}/icons/icon.svg`,
 						sizes: 'any',
 						type: 'image/svg+xml',
 						purpose: 'any'
 					},
 					{
-						src: '/icons/icon-192.png',
+						src: `${basePath}/icons/icon-192.png`,
 						sizes: '192x192',
 						type: 'image/png',
 						purpose: 'any maskable'
 					},
 					{
-						src: '/icons/icon-512.png',
+						src: `${basePath}/icons/icon-512.png`,
 						sizes: '512x512',
 						type: 'image/png',
 						purpose: 'any maskable'
