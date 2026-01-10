@@ -17,13 +17,13 @@
 
 	// Numeric config
 	let numericUnit = $state('');
-	let numericMin = $state<number | undefined>(undefined);
-	let numericMax = $state<number | undefined>(undefined);
+	let numericMinStr = $state('');
+	let numericMaxStr = $state('');
 	let numericDecimals = $state(0);
 
 	// Scale config
-	let scaleMin = $state(1);
-	let scaleMax = $state(10);
+	let scaleMinStr = $state('1');
+	let scaleMaxStr = $state('10');
 	let scaleMinLabel = $state('Low');
 	let scaleMaxLabel = $state('High');
 	let scaleStep = $state(1);
@@ -54,13 +54,13 @@
 		if (metric.config.type === 'numeric') {
 			metricType = 'numeric';
 			numericUnit = metric.config.unit;
-			numericMin = metric.config.validRange?.min;
-			numericMax = metric.config.validRange?.max;
+			numericMinStr = metric.config.validRange?.min?.toString() ?? '';
+			numericMaxStr = metric.config.validRange?.max?.toString() ?? '';
 			numericDecimals = metric.config.decimalPlaces;
 		} else if (metric.config.type === 'scale') {
 			metricType = 'scale';
-			scaleMin = metric.config.min;
-			scaleMax = metric.config.max;
+			scaleMinStr = metric.config.min.toString();
+			scaleMaxStr = metric.config.max.toString();
 			scaleMinLabel = metric.config.minLabel;
 			scaleMaxLabel = metric.config.maxLabel;
 			scaleStep = metric.config.step;
@@ -81,11 +81,11 @@
 		metricName = '';
 		metricType = 'numeric';
 		numericUnit = '';
-		numericMin = undefined;
-		numericMax = undefined;
+		numericMinStr = '';
+		numericMaxStr = '';
 		numericDecimals = 0;
-		scaleMin = 1;
-		scaleMax = 10;
+		scaleMinStr = '1';
+		scaleMaxStr = '10';
 		scaleMinLabel = 'Low';
 		scaleMaxLabel = 'High';
 		scaleStep = 1;
@@ -96,20 +96,23 @@
 
 	function buildConfig(): NumericConfig | ScaleConfig | EventConfig {
 		switch (metricType) {
-			case 'numeric':
+			case 'numeric': {
+				const min = numericMinStr.trim() !== '' ? parseFloat(numericMinStr) : undefined;
+				const max = numericMaxStr.trim() !== '' ? parseFloat(numericMaxStr) : undefined;
 				return {
 					type: 'numeric',
 					unit: numericUnit,
-					validRange: numericMin !== undefined && numericMax !== undefined
-						? { min: numericMin, max: numericMax }
+					validRange: min !== undefined && max !== undefined
+						? { min, max }
 						: undefined,
 					decimalPlaces: numericDecimals
 				};
+			}
 			case 'scale':
 				return {
 					type: 'scale',
-					min: scaleMin,
-					max: scaleMax,
+					min: parseInt(scaleMinStr) || 1,
+					max: parseInt(scaleMaxStr) || 10,
 					minLabel: scaleMinLabel,
 					maxLabel: scaleMaxLabel,
 					step: scaleStep
@@ -375,12 +378,12 @@
 				<Input
 					label="Min Value (optional)"
 					type="number"
-					bind:value={numericMin}
+					bind:value={numericMinStr}
 				/>
 				<Input
 					label="Max Value (optional)"
 					type="number"
-					bind:value={numericMax}
+					bind:value={numericMaxStr}
 				/>
 			</div>
 			<div class="space-y-2">
@@ -398,12 +401,12 @@
 				<Input
 					label="Min Value"
 					type="number"
-					bind:value={scaleMin}
+					bind:value={scaleMinStr}
 				/>
 				<Input
 					label="Max Value"
 					type="number"
-					bind:value={scaleMax}
+					bind:value={scaleMaxStr}
 				/>
 			</div>
 			<div class="grid grid-cols-2 gap-3">
@@ -488,12 +491,12 @@
 				<Input
 					label="Min Value (optional)"
 					type="number"
-					bind:value={numericMin}
+					bind:value={numericMinStr}
 				/>
 				<Input
 					label="Max Value (optional)"
 					type="number"
-					bind:value={numericMax}
+					bind:value={numericMaxStr}
 				/>
 			</div>
 			<div class="space-y-2">
@@ -511,12 +514,12 @@
 				<Input
 					label="Min Value"
 					type="number"
-					bind:value={scaleMin}
+					bind:value={scaleMinStr}
 				/>
 				<Input
 					label="Max Value"
 					type="number"
-					bind:value={scaleMax}
+					bind:value={scaleMaxStr}
 				/>
 			</div>
 			<div class="grid grid-cols-2 gap-3">

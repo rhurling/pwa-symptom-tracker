@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { createFocusTrap } from '$lib/utils/accessibility';
 
 	interface Props {
 		open: boolean;
@@ -11,6 +12,9 @@
 	}
 
 	let { open = $bindable(), title, onclose, children, footer }: Props = $props();
+
+	let modalElement: HTMLElement | null = $state(null);
+	let cleanupFocusTrap: (() => void) | null = null;
 
 	function handleClose() {
 		open = false;
@@ -28,6 +32,24 @@
 			handleClose();
 		}
 	}
+
+	// Set up focus trap when modal opens
+	$effect(() => {
+		if (open && modalElement) {
+			// Small delay to ensure content is rendered
+			const timeoutId = setTimeout(() => {
+				if (modalElement) {
+					cleanupFocusTrap = createFocusTrap(modalElement);
+				}
+			}, 50);
+
+			return () => {
+				clearTimeout(timeoutId);
+				cleanupFocusTrap?.();
+				cleanupFocusTrap = null;
+			};
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -46,6 +68,7 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 		<!-- Modal Content -->
 		<div
+			bind:this={modalElement}
 			class="max-h-[90vh] w-full max-w-lg overflow-auto rounded-t-2xl bg-white dark:bg-[#242824] sm:rounded-2xl"
 			transition:fly={{ y: 100, duration: 200 }}
 			onclick={(e) => e.stopPropagation()}

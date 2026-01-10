@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import { settings, sessions, metrics } from '$stores';
 	import { browser } from '$app/environment';
+	import { OfflineIndicator } from '$components/common';
 
 	let { children } = $props();
 	let mediaQuery: MediaQueryList | null = null;
@@ -71,8 +72,16 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
+	<!-- Skip link for keyboard users -->
+	<a
+		href="#main-content"
+		class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary-500 focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+	>
+		Skip to main content
+	</a>
+
 	<!-- Header -->
-	<header class="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur-sm dark:border-[#3d423d] dark:bg-[#1a1d1a]/80">
+	<header class="sticky top-0 z-40 border-b border-neutral-200 bg-white/80 backdrop-blur-sm dark:border-[#3d423d] dark:bg-[#1a1d1a]/80" role="banner">
 		<div class="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
 			<a href="/" class="text-lg font-semibold text-primary-600 dark:text-primary-400">
 				Symptom Tracker
@@ -91,12 +100,20 @@
 	</header>
 
 	<!-- Main Content -->
-	<main class="mx-auto w-full max-w-lg flex-1 px-4 pb-20 pt-4">
+	<main id="main-content" class="mx-auto w-full max-w-lg flex-1 px-4 pb-20 pt-4" role="main">
 		{@render children()}
 	</main>
 
+	<!-- Offline Indicator -->
+	<OfflineIndicator variant="toast" />
+
 	<!-- Bottom Navigation -->
-	<nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white/95 backdrop-blur-sm dark:border-[#3d423d] dark:bg-[#1a1d1a]/95" style="padding-bottom: env(safe-area-inset-bottom);">
+	<nav
+		class="fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white/95 backdrop-blur-sm dark:border-[#3d423d] dark:bg-[#1a1d1a]/95"
+		style="padding-bottom: env(safe-area-inset-bottom);"
+		aria-label="Main navigation"
+		role="navigation"
+	>
 		<div class="mx-auto flex max-w-lg items-center justify-around">
 			{#each navItems as item}
 				<a
@@ -104,6 +121,7 @@
 					class="flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors {isActive(item.href)
 						? 'text-primary-600 dark:text-primary-400'
 						: 'text-neutral-500 dark:text-neutral-400'}"
+					aria-current={isActive(item.href) ? 'page' : undefined}
 				>
 					{#if item.icon === 'sessions'}
 						<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

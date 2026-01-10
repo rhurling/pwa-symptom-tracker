@@ -2,14 +2,9 @@ import { writable, derived, get } from 'svelte/store';
 import { db } from '$db';
 import type { ScheduledReminder } from '$types';
 
-// Extended reminder with snooze support
-interface Reminder extends ScheduledReminder {
-	snoozedUntil?: Date;
-}
-
 // Reminder store state
 interface ReminderState {
-	reminders: Reminder[];
+	reminders: ScheduledReminder[];
 	loading: boolean;
 }
 
@@ -47,9 +42,9 @@ function createRemindersStore() {
 		},
 
 		// Create a new reminder
-		async create(reminder: Omit<Reminder, 'id' | 'createdAt'>) {
+		async create(reminder: Omit<ScheduledReminder, 'id' | 'createdAt'>) {
 			const now = new Date();
-			const newReminder: Reminder = {
+			const newReminder: ScheduledReminder = {
 				...reminder,
 				id: `reminder-${Date.now()}`,
 				createdAt: now
@@ -65,7 +60,7 @@ function createRemindersStore() {
 		},
 
 		// Update a reminder
-		async update(id: string, updates: Partial<Reminder>) {
+		async update(id: string, updates: Partial<ScheduledReminder>) {
 			await db.reminders.update(id, updates);
 			update((s) => ({
 				...s,
@@ -113,7 +108,7 @@ function createRemindersStore() {
 		},
 
 		// Get active reminders (not snoozed)
-		getActive(): Reminder[] {
+		getActive(): ScheduledReminder[] {
 			const state = get({ subscribe });
 			const now = new Date();
 			return state.reminders.filter((r) => {
@@ -128,7 +123,7 @@ function createRemindersStore() {
 		},
 
 		// Get upcoming reminders
-		getUpcoming(): Reminder[] {
+		getUpcoming(): ScheduledReminder[] {
 			const state = get({ subscribe });
 			const now = new Date();
 			return state.reminders
