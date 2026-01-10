@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { settings } from '$stores';
 	import { Card, Button, Modal } from '$components/common';
 	import { db } from '$db';
@@ -235,6 +236,40 @@
 					{/each}
 				</div>
 			</div>
+		</div>
+	</Card>
+
+	<!-- Configuration Links -->
+	<Card>
+		<h2 class="mb-4 font-semibold text-neutral-800 dark:text-neutral-100">Configuration</h2>
+		<div class="space-y-2">
+			<button
+				onclick={() => goto('/settings/metrics')}
+				class="flex w-full items-center gap-3 rounded-lg border border-neutral-200 p-3 text-left transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+			>
+				<span class="text-xl">📊</span>
+				<div class="flex-1">
+					<p class="font-medium text-neutral-800 dark:text-neutral-100">Custom Metrics</p>
+					<p class="text-xs text-neutral-500">Create and manage custom tracking metrics</p>
+				</div>
+				<svg class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+				</svg>
+			</button>
+
+			<button
+				onclick={() => goto('/settings/notifications')}
+				class="flex w-full items-center gap-3 rounded-lg border border-neutral-200 p-3 text-left transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+			>
+				<span class="text-xl">🔔</span>
+				<div class="flex-1">
+					<p class="font-medium text-neutral-800 dark:text-neutral-100">Notifications</p>
+					<p class="text-xs text-neutral-500">Configure reminder notifications</p>
+				</div>
+				<svg class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+				</svg>
+			</button>
 		</div>
 	</Card>
 
