@@ -3,10 +3,10 @@
 	import { goto } from '$app/navigation';
 	import { sessions, entries, metricsById } from '$stores';
 	import { Button, Card } from '$components/common';
-	import { TemperatureInput, FeelingInput, EventInput } from '$components/metrics';
+	import { TemperatureInput, FeelingInput, EventInput, NumericInput, ScaleInput } from '$components/metrics';
 	import { formatInputDateTime, parseInputDateTime } from '$utils/dates';
 	import { onMount } from 'svelte';
-	import type { TrackingSession, EntryValue } from '$types';
+	import type { TrackingSession, EntryValue, NumericConfig, ScaleConfig, MetricDefinition } from '$types';
 
 	const sessionId = $derived($page.params.id!);
 	let session = $state<TrackingSession | null>(null);
@@ -23,6 +23,29 @@
 	let feelingEmoji = $state<string | null>(null);
 	let feelingNote = $state('');
 	let eventValue = $state('');
+
+	// Dynamic metric values for numeric and scale types
+	let numericValues = $state<Map<string, number | null>>(new Map());
+	let scaleValues = $state<Map<string, number | null>>(new Map());
+
+	// Get metric definition for a given metricId
+	function getMetricDef(metricId: string): MetricDefinition | undefined {
+		return $metricsById.get(metricId);
+	}
+
+	// Get enabled custom metrics (non-built-in)
+	const enabledCustomMetrics = $derived(() => {
+		if (!session) return [];
+		return session.enabledMetrics
+			.filter(m => {
+				const def = getMetricDef(m.metricId);
+				return def && !def.isBuiltIn;
+			})
+			.map(m => ({
+				config: m,
+				definition: getMetricDef(m.metricId)!
+			}));
+	});
 
 	onMount(async () => {
 		if (!sessionId) return;
@@ -71,6 +94,26 @@
 			});
 		}
 
+		// Handle numeric metrics
+		for (const [metricId, numericValue] of numericValues) {
+			if (numericValue !== null) {
+				entriesToCreate.push({
+					metricId,
+					value: { type: 'numeric', value: numericValue }
+				});
+			}
+		}
+
+		// Handle scale metrics
+		for (const [metricId, scaleValue] of scaleValues) {
+			if (scaleValue !== null) {
+				entriesToCreate.push({
+					metricId,
+					value: { type: 'scale', value: scaleValue }
+				});
+			}
+		}
+
 		if (entriesToCreate.length === 0) {
 			return; // Nothing to save
 		}
@@ -94,6 +137,8 @@
 			feelingEmoji = null;
 			feelingNote = '';
 			eventValue = '';
+			numericValues = new Map();
+			scaleValues = new Map();
 			timestamp = formatInputDateTime(new Date());
 			useCurrentTime = true;
 
@@ -113,7 +158,11 @@
 	}
 
 	const hasAnyValue = $derived(
-		temperatureValue !== null || (feelingValue !== null && feelingEmoji !== null) || eventValue.trim()
+		temperatureValue !== null ||
+		(feelingValue !== null && feelingEmoji !== null) ||
+		eventValue.trim() ||
+		Array.from(numericValues.values()).some(v => v !== null) ||
+		Array.from(scaleValues.values()).some(v => v !== null)
 	);
 
 	function isMetricEnabled(metricId: string): boolean {
@@ -208,6 +257,38 @@
 					/>
 				</Card>
 			{/if}
+
+			<!-- Custom metrics (numeric and scale) -->
+			{#each enabledCustomMetrics() as { config, definition }}
+				{#if definition.config.type === 'numeric'}
+					<Card>
+						<NumericInput
+							value={numericValues.get(definition.id) ?? null}
+							config={definition.config as NumericConfig}
+							thresholds={config.thresholds}
+							label={definition.name}
+							onchange={(v) => {
+								const newMap = new Map(numericValues);
+								newMap.set(definition.id, v);
+								numericValues = newMap;
+							}}
+						/>
+					</Card>
+				{:else if definition.config.type === 'scale'}
+					<Card>
+						<ScaleInput
+							value={scaleValues.get(definition.id) ?? null}
+							config={definition.config as ScaleConfig}
+							label={definition.name}
+							onchange={(v) => {
+								const newMap = new Map(scaleValues);
+								newMap.set(definition.id, v);
+								scaleValues = newMap;
+							}}
+						/>
+					</Card>
+				{/if}
+			{/each}
 		</div>
 
 		<!-- Submit button -->
