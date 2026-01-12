@@ -155,6 +155,7 @@ export interface ScheduledReminder {
 	sessionId: string;
 	scheduledFor: Date;
 	status: 'pending' | 'sent' | 'dismissed' | 'snoozed';
+	snoozedUntil?: Date;
 	createdAt: Date;
 }
 

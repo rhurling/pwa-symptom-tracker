@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { sessions, entries, metricsById, settings } from '$stores';
-	import { Button, Card, Modal } from '$components/common';
-	import { formatTime, formatDate, formatTimeAgo, isSameDayAs } from '$utils/dates';
+	import { sessions, entries, metrics, metricsById, settings } from '$stores';
+	import { Button, Modal } from '$components/common';
+	import { Timeline } from '$components/timeline';
+	import { formatTime, formatDate } from '$utils/dates';
 	import { formatTemperature, getTemperatureStatus } from '$utils/temperature';
-	import { groupEntriesByDay } from '$utils/grouping';
 	import { onMount } from 'svelte';
 	import type { TrackingSession, Entry } from '$types';
 
@@ -23,7 +23,14 @@
 		}
 	});
 
-	const groupedEntries = $derived(groupEntriesByDay($entries));
+	// Get enabled metrics for this session
+	const sessionMetrics = $derived(
+		session
+			? session.enabledMetrics
+					.map((mc) => $metricsById.get(mc.metricId))
+					.filter((m): m is NonNullable<typeof m> => m != null)
+			: []
+	);
 
 	function handleBack() {
 		goto(`/session/${sessionId}`);
@@ -108,66 +115,16 @@
 			</Button>
 		</div>
 
-		<!-- Timeline -->
-		{#if groupedEntries.length === 0}
-			<Card class="text-center">
-				<p class="text-neutral-500 dark:text-neutral-400">No entries yet</p>
-				<Button class="mt-3" onclick={handleQuickLog}>Log your first entry</Button>
-			</Card>
-		{:else}
-			<div class="space-y-6">
-				{#each groupedEntries as group (group.label)}
-					<div>
-						<!-- Date header -->
-						<div class="sticky top-14 z-10 -mx-4 bg-neutral-50/95 px-4 py-2 backdrop-blur-sm dark:bg-[#1a1d1a]/95">
-							<h2 class="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
-								{formatDate(group.date)}
-							</h2>
-						</div>
-
-						<!-- Entries for this day -->
-						<div class="relative ml-4 space-y-3 border-l-2 border-neutral-200 pl-4 dark:border-neutral-700">
-							{#each group.entries as entry (entry.id)}
-								<button
-									onclick={() => openEntry(entry)}
-									class="relative block w-full rounded-lg border border-neutral-200 bg-white p-3 text-left transition-colors hover:border-neutral-300 dark:border-neutral-700 dark:bg-[#242824] dark:hover:border-neutral-600"
-								>
-									<!-- Time dot -->
-									<div class="absolute -left-[1.375rem] top-4 h-2.5 w-2.5 rounded-full bg-primary-500"></div>
-
-									<div class="flex items-start justify-between gap-2">
-										<div class="flex items-center gap-2">
-											<span class="text-lg">{getMetricIcon(entry.metricId)}</span>
-											<span class="font-medium text-neutral-800 dark:text-neutral-100">
-												{getEntryDisplayValue(entry)}
-											</span>
-											{#if getTemperatureWarning(entry)}
-												<span>{getTemperatureWarning(entry)}</span>
-											{/if}
-										</div>
-										<span class="shrink-0 text-xs text-neutral-400">
-											{formatTime(entry.timestamp)}
-										</span>
-									</div>
-
-									{#if entry.note || (entry.value.type === 'feeling' && entry.value.note)}
-										<p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-											{entry.note || (entry.value.type === 'feeling' ? entry.value.note : '')}
-										</p>
-									{/if}
-
-									{#if entry.isRetrospective}
-										<span class="mt-2 inline-block rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400">
-											Retrospective
-										</span>
-									{/if}
-								</button>
-							{/each}
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/if}
+		<!-- Timeline Component -->
+		<Timeline
+			{session}
+			entries={$entries}
+			metrics={sessionMetrics}
+			metricsById={$metricsById}
+			temperatureUnit={$settings.temperatureUnit}
+			onEntryClick={openEntry}
+			onQuickLog={handleQuickLog}
+		/>
 	</div>
 
 	<!-- Entry Detail Modal -->

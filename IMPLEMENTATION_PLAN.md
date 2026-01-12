@@ -183,20 +183,20 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
   - Quick action buttons (Quick Log, Edit, Timeline)
   - Recent entries list (last 5-10)
   - Summary cards with trend indicators
-- [ ] Create `src/lib/components/session/SessionDetail.svelte`
+- [x] Create `src/lib/components/session/SessionDetail.svelte`
   - Trend calculation (improving/worsening/stable)
   - Current values display
 
 ### 5.3 New Session Wizard
 - [x] Create `src/routes/session/new/+page.svelte` (basic version)
-- [ ] Create `src/lib/components/session/SessionWizard.svelte`
+- [x] Create `src/lib/components/session/SessionWizard.svelte`
   - Step 1: Basics (name, description, type)
   - Step 2: Select Metrics (checklist with previews)
   - Step 3: Configure Thresholds (optional)
   - Step 4: Set Up Reminders
   - Step 5: Review & Create
-- [ ] Step navigation with progress indicator
-- [ ] Validation per step
+- [x] Step navigation with progress indicator
+- [x] Validation per step
 
 ---
 
@@ -218,23 +218,23 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
 
 ---
 
-## Phase 7: Timeline View (Partial) ✅
+## Phase 7: Timeline View ✅
 
 ### 7.1 Timeline Component
 - [x] Create `src/routes/session/[id]/timeline/+page.svelte`
-- [ ] Create `src/lib/components/timeline/Timeline.svelte`
+- [x] Create `src/lib/components/timeline/Timeline.svelte`
   - Zoom controls (6h, 24h, 3d, 7d, All)
   - Filter dropdown
   - Scrollable entry list
 
 ### 7.2 Timeline Entries
-- [x] Create `src/lib/components/timeline/TimelineEntry.svelte` (inline in page)
+- [x] Create `src/lib/components/timeline/TimelineEntry.svelte`
   - Time display
   - Metric icon and value
   - Threshold indicators (warning/critical)
   - Notes display
   - Tap to view/edit
-- [x] Create `src/lib/components/timeline/TimelineGroup.svelte` (inline in page)
+- [x] Create `src/lib/components/timeline/TimelineGroup.svelte`
   - Date headers
   - Collapsible groups for long sessions
   - Aggregate displays
@@ -246,7 +246,7 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
 - [ ] Notable event extraction
 
 ### 7.4 Timeline Filters
-- [ ] Create `src/lib/components/timeline/TimelineFilters.svelte`
+- [x] Create `src/lib/components/timeline/TimelineFilters.svelte`
   - Filter by metric type
   - Filter by date range
   - Toggle annotations
@@ -264,7 +264,7 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
   - LLM prompt options
 
 ### 8.2 Export Service
-- [x] Create `src/lib/services/export.ts` (inline in page)
+- [x] Create `src/lib/services/export.ts`
   - Implement `MarkdownExportOptions` interface
   - Chronological log format generator
   - Sectioned report format generator
@@ -312,10 +312,10 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
 
 ---
 
-## Phase 10: Smart Features
+## Phase 10: Smart Features (Partial) ✅
 
 ### 10.1 Trend Detection
-- [ ] Create `src/lib/services/trends.ts`
+- [x] Create `src/lib/services/trends.ts`
   - Implement `detectTrend()` function from spec
   - Linear regression slope calculation
   - Metric-specific trend interpretation
@@ -343,7 +343,7 @@ This document outlines the phased implementation plan for the PWA Symptom Tracke
 - [ ] Data corruption detection and recovery
 
 ### 11.2 Edge Cases
-- [ ] Empty states for all list views
+- [x] Empty states for all list views
 - [ ] First-launch onboarding flow
 - [ ] Offline indicator
 - [ ] Loading states for async operations

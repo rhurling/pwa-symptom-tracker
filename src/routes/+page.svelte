@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { sessions } from '$stores';
 	import { SessionCard } from '$components/session';
-	import { Button } from '$components/common';
+	import { Button, EmptyState } from '$components/common';
 	import { db } from '$db';
 	import { onMount } from 'svelte';
 
@@ -51,21 +51,16 @@
 
 	{#if $sessions.length === 0}
 		<!-- Empty state -->
-		<div class="py-12 text-center">
-			<div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30">
-				<span class="text-3xl">📋</span>
-			</div>
-			<h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">No sessions yet</h2>
-			<p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-				Create your first tracking session to get started
-			</p>
-			<Button class="mt-4" onclick={handleNewSession}>
-				+ New Session
-			</Button>
-		</div>
+		<EmptyState
+			icon="📋"
+			title="No sessions yet"
+			description="Create your first tracking session to start logging your symptoms"
+			actionLabel="+ New Session"
+			onAction={handleNewSession}
+		/>
 	{:else}
-		<!-- Sessions list -->
-		<div class="space-y-3">
+		<!-- Sessions list with stagger animation -->
+		<div class="stagger-children space-y-3">
 			{#each $sessions as session (session.id)}
 				<SessionCard
 					{session}
@@ -81,7 +76,7 @@
 {#if $sessions.length > 0}
 	<button
 		onclick={handleNewSession}
-		class="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+		class="animate-scale-in fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
 		aria-label="New session"
 	>
 		<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
