@@ -233,7 +233,7 @@ describe('getNumericValue', () => {
 		const entry = createEntry({
 			timestamp: new Date(),
 			metricId: 'feeling',
-			value: { type: 'feeling', emojiValue: 3, note: '' }
+			value: { type: 'feeling', emojiValue: 3, emoji: '😐', note: '' }
 		});
 
 		expect(getNumericValue(entry)).toBe(3);
@@ -379,7 +379,7 @@ describe('calculateAverage', () => {
 			createEntry({
 				timestamp: new Date(),
 				metricId: 'feeling',
-				value: { type: 'feeling', emojiValue: 3, note: '' }
+				value: { type: 'feeling', emojiValue: 3, emoji: '😐', note: '' }
 			})
 		];
 
@@ -461,12 +461,12 @@ describe('extractNotableEvents', () => {
 			createEntry({
 				timestamp: new Date('2024-01-15T08:00:00'),
 				metricId: 'feeling',
-				value: { type: 'feeling', emojiValue: 2, note: '' }
+				value: { type: 'feeling', emojiValue: 2, emoji: '😞', note: '' }
 			}),
 			createEntry({
 				timestamp: new Date('2024-01-15T12:00:00'),
 				metricId: 'feeling',
-				value: { type: 'feeling', emojiValue: 4, note: '' } // 100% increase
+				value: { type: 'feeling', emojiValue: 4, emoji: '🙂', note: '' } // 100% increase
 			})
 		];
 

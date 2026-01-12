@@ -7,3 +7,4 @@ export { default as Spinner } from './Spinner.svelte';
 export { default as LoadingState } from './LoadingState.svelte';
 export { default as Skeleton } from './Skeleton.svelte';
 export { default as OfflineIndicator } from './OfflineIndicator.svelte';
+export { default as PageTransition } from './PageTransition.svelte';

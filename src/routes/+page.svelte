@@ -59,8 +59,8 @@
 			onAction={handleNewSession}
 		/>
 	{:else}
-		<!-- Sessions list -->
-		<div class="space-y-3">
+		<!-- Sessions list with stagger animation -->
+		<div class="stagger-children space-y-3">
 			{#each $sessions as session (session.id)}
 				<SessionCard
 					{session}
@@ -76,7 +76,7 @@
 {#if $sessions.length > 0}
 	<button
 		onclick={handleNewSession}
-		class="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+		class="animate-scale-in fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
 		aria-label="New session"
 	>
 		<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

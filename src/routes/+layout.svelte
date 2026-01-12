@@ -4,7 +4,7 @@
 	import { page } from '$app/stores';
 	import { settings, sessions, metrics } from '$stores';
 	import { browser } from '$app/environment';
-	import { OfflineIndicator } from '$components/common';
+	import { OfflineIndicator, PageTransition } from '$components/common';
 
 	let { children } = $props();
 	let mediaQuery: MediaQueryList | null = null;
@@ -101,7 +101,11 @@
 
 	<!-- Main Content -->
 	<main id="main-content" class="mx-auto w-full max-w-lg flex-1 px-4 pb-20 pt-4" role="main">
-		{@render children()}
+		<PageTransition>
+			{#snippet children()}
+				{@render children()}
+			{/snippet}
+		</PageTransition>
 	</main>
 
 	<!-- Offline Indicator -->

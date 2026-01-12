@@ -49,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Temperature unit preference (Celsius/Fahrenheit)
 - Responsive mobile-first design
 - Bottom navigation with visual feedback
+- Page transitions with fade animations
+- Stagger animations for list items
+- Floating action button with scale animation
 
 #### Accessibility
 - Skip link for keyboard navigation
@@ -75,7 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Export formatting
   - Accessibility utilities
   - Error handling
+- GitHub Actions CI/CD pipelines:
+  - CI workflow (type check, tests, lint, build)
+  - Deploy workflow (GitHub Pages)
 - Comprehensive README documentation
+- CHANGELOG version tracking
 
 ### Technical Details
 - Built with SvelteKit 2 + Svelte 5 (runes)
@@ -92,4 +99,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Component-level unit tests
 - E2E tests with Playwright
 - Performance profiling
-- CI/CD pipeline setup
